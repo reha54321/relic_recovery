@@ -46,7 +46,7 @@ public class testeroni extends OpMode {
 		 */
 
 
-        motorFrontRight = hardwareMap.dcMotor.get("motor front right");
+        motorFrontRight = hardwareMap.dcMotor.get("motor front right"); //capitalize?
         motorFrontLeft = hardwareMap.dcMotor.get("motor front left");
         motorBackLeft = hardwareMap.dcMotor.get("motor back left");
         motorBackRight = hardwareMap.dcMotor.get("motor back right");
@@ -64,10 +64,10 @@ public class testeroni extends OpMode {
     public void loop() {
 
 
-        // left stick controls direction
+        // left stick controls direction //can we reverse? having movement on the right stick is classic and easier for button access
         // right stick X controls rotation
 
-        float gamepad1LeftY = -gamepad1.left_stick_y;
+        float gamepad1LeftY = -gamepad1.left_stick_y; //why? just use the actual code name
         float gamepad1LeftX = gamepad1.left_stick_x;
         float gamepad1RightX = gamepad1.right_stick_x;
         float gamepad2LeftY = gamepad2.left_stick_y;
@@ -79,7 +79,7 @@ public class testeroni extends OpMode {
         float BackRight = gamepad1LeftY + gamepad1LeftX - gamepad1RightX;
         float BackLeft = -gamepad1LeftY + gamepad1LeftX - gamepad1RightX;
 
-        // clip the right/left values so that the values never exceed +/- 1
+        // clip the right/left values so that the values never exceed +/- 1 --> we should comment this out and see what happends cuz if it does exceed 1, we might be missing something
         FrontRight = Range.clip(FrontRight, -1, 1);
         FrontLeft = Range.clip(FrontLeft, -1, 1);
         BackLeft = Range.clip(BackLeft, -1, 1);

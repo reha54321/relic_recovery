@@ -186,10 +186,11 @@ public class JewelCode extends OpMode {
 
             while(whichColor!="red"){
                 //side to side until it finds red
-                for(int i; i<10;i++){
+                for(int i; i<2;i++){
                 driveForward(8,-8,-8,8,2+i);
-                driveForward(-8,8,8,-8,2+i);
-            }
+                driveForward(-16,16,16,-16,2+i);
+                }
+                driveForward(0,0,0,0,1);
             }
             if (whichColor=="red"){
                 continuousServo.setPosition(1.0);

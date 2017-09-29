@@ -57,7 +57,7 @@ public class JewelCode extends OpMode {
 
     @Override
     public void loop(){
-
+        float hsvValues[] = {0F,0F,0F};
 
 
         // bLedOn represents the state of the LED.
@@ -186,7 +186,7 @@ public class JewelCode extends OpMode {
 
             while(whichColor!="red"){
                 //side to side until it finds red
-                for(int i; i<2;i++){
+                for(int i=0; i<2;i++){
                 driveForward(8,-8,-8,8,2+i);
                 driveForward(-16,16,16,-16,2+i);
                 }

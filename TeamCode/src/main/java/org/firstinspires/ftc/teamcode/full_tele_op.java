@@ -75,9 +75,9 @@ public class full_tele_op extends OpMode {
         float gamepad1LeftY = -gamepad1.left_stick_y;
         float gamepad1LeftX = gamepad1.left_stick_x;
         float gamepad1RightX = gamepad1.right_stick_x;
-        boolean gamepad1DpadUp = gamepad1.dpad_up;
 
-        boolean gamepad1DpadDown = gamepad1.dpad_down;
+        float gamepad1LeftTrigger = gamepad1.left_trigger;
+        float gamepad1RightTrigger = gamepad1.right_trigger;
 
         boolean pressLeft = gamepad1.left_bumper;
         boolean pressRight = gamepad1.right_bumper;
@@ -101,11 +101,11 @@ public class full_tele_op extends OpMode {
         motorBackLeft.setPower(BackLeft);
         motorBackRight.setPower(BackRight);
 
-        if(gamepad1DpadUp)
+        if(gamepad1RightTrigger > 0)
         {
             lift.setPower(1);
         }
-        else if(gamepad1DpadDown) {
+        else if(gamepad1LeftTrigger > 0) {
             lift.setPower(-1);
         }
         else
@@ -115,13 +115,13 @@ public class full_tele_op extends OpMode {
 
         if(pressRight)
         {
-            leftArm.setPosition(0.00);
-            rightArm.setPosition(1.00);
+            leftArm.setPosition(1.00);
+            rightArm.setPosition(0.00);
         }
         else if(pressLeft)
         {
-            leftArm.setPosition(1.00);
-            rightArm.setPosition(0.00);
+            leftArm.setPosition(0.00);
+            rightArm.setPosition(1.00);
         }
 
 

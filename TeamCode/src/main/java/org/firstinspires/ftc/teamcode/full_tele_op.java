@@ -35,6 +35,8 @@ public class full_tele_op extends OpMode {
     Servo rightArm;
     Servo leftArm;
 
+    double changeFactor = .9;
+
     @Override
     public void init()
     {
@@ -65,6 +67,12 @@ public class full_tele_op extends OpMode {
 
     }
 
+    public float rightPos = 1;
+    public float leftPos = 0;
+
+    public float rightMax;
+    public float leftMax;
+
     @Override
     public void loop() {
 
@@ -76,18 +84,24 @@ public class full_tele_op extends OpMode {
         float gamepad1LeftX = gamepad1.left_stick_x;
         float gamepad1RightX = gamepad1.right_stick_x;
 
-        float gamepad1LeftTrigger = gamepad1.left_trigger;
-        float gamepad1RightTrigger = gamepad1.right_trigger;
-
-        boolean pressLeft = gamepad1.left_bumper;
-        boolean pressRight = gamepad1.right_bumper;
+        float gamepad2LeftY = gamepad2.left_stick_y;
+        float gamepad2RightY = gamepad2.right_stick_y;
 
         // holonomic formulas
 
-        float FrontLeft = -gamepad1LeftY - gamepad1LeftX - gamepad1RightX;
-        float FrontRight = gamepad1LeftY - gamepad1LeftX - gamepad1RightX;
-        float BackRight = gamepad1LeftY + gamepad1LeftX - gamepad1RightX;
-        float BackLeft = -gamepad1LeftY + gamepad1LeftX - gamepad1RightX;
+        float FrontLeft = (float)((-gamepad1LeftY - gamepad1LeftX - gamepad1RightX) * changeFactor); // 3 4ths of the power
+        float FrontRight = (float)((gamepad1LeftY - gamepad1LeftX - gamepad1RightX) * changeFactor);
+        float BackRight = (float)((gamepad1LeftY + gamepad1LeftX - gamepad1RightX) * changeFactor);
+        float BackLeft = (float)((-gamepad1LeftY + gamepad1LeftX - gamepad1RightX) * changeFactor);
+
+        if(gamepad1.left_stick_button || gamepad1.right_stick_button) { //scaling power of motors
+            if(changeFactor == .9) {
+                changeFactor = .5;
+            }
+            else {
+                changeFactor = .9;
+            }
+        }
 
         // clip the right/left values so that the values never exceed +/- 1
         FrontRight = Range.clip(FrontRight, -1, 1);
@@ -101,29 +115,29 @@ public class full_tele_op extends OpMode {
         motorBackLeft.setPower(BackLeft);
         motorBackRight.setPower(BackRight);
 
-        if(gamepad1RightTrigger > 0)
-        {
-            lift.setPower(1);
+        lift.setPower(-gamepad2LeftY * .9);
+
+        if((rightPos+.025 <= 1) && (leftPos-.025 >= 0)) {
+            if(gamepad2RightY > 0) // open
+            {
+                rightPos += 0.025;
+                leftPos -= 0.025;
+            }
         }
-        else if(gamepad1LeftTrigger > 0) {
-            lift.setPower(-1);
+        if((rightPos-.025 >= 0) && (leftPos+.025) <=1) {
+            if(gamepad2RightY < 0) // close
+            {
+                rightPos -= 0.025;
+                leftPos += 0.025;
+            }
         }
-        else
-        {
-            lift.setPower(0);
+        else if(gamepad2.x) {
+            rightPos = 0;
+            leftPos = 0;
         }
 
-        if(pressRight)
-        {
-            leftArm.setPosition(1.00);
-            rightArm.setPosition(0.00);
-        }
-        else if(pressLeft)
-        {
-            leftArm.setPosition(0.00);
-            rightArm.setPosition(1.00);
-        }
-
+        rightArm.setPosition(rightPos);
+        leftArm.setPosition(leftPos);
 
         /*
         if(pressLeft)
@@ -191,4 +205,3 @@ public class full_tele_op extends OpMode {
         return dScale;
     }
 
-}

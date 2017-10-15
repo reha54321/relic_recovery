@@ -37,11 +37,14 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import com.qualcomm.robotcore.hardware.ColorSensor;
+import android.graphics.Color;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+import android.app.Activity;
+import android.view.View;
 
 /**
  * This file illustrates the concept of driving a path based on encoder counts.
@@ -84,6 +87,7 @@ public class Aut_Encoder extends LinearOpMode {
             (WHEEL_DIAMETER_INCHES * 3.1415);
     static final double     DRIVE_SPEED             = 0.6;
     static final double     TURN_SPEED              = 0.5;
+    static final double     STRAFE_SPEED              = 0.5;
 
     //Init Sensors
     ColorSensor whiteLine;
@@ -98,6 +102,8 @@ public class Aut_Encoder extends LinearOpMode {
 
     //Init Servos
     Servo armServo;
+
+
     @Override
     public void runOpMode() {
         /*
@@ -123,6 +129,21 @@ public class Aut_Encoder extends LinearOpMode {
                 leftBack.getCurrentPosition(),
                 rightBack.getCurrentPosition()
         );
+
+        whiteLine.enableLed(true); // mode is for close-range testing on objects that do not shine light
+        telemetry.addData("LED", true ? "On" : "Off");
+        telemetry.addData("Clear", whiteLine.alpha());
+        telemetry.addData("Red ", whiteLine.red());
+        telemetry.addData("Green", whiteLine.green());
+        telemetry.addData("Blue ", whiteLine.blue());
+
+        ballSensor.enableLed(true); // mode is for close-range testing on objects that do not shine light
+        telemetry.addData("LED", true ? "On" : "Off");
+        telemetry.addData("Clear", ballSensor.alpha());
+        telemetry.addData("Red ", ballSensor.red());
+        telemetry.addData("Green", ballSensor.green());
+        telemetry.addData("Blue ", ballSensor.blue());
+
         telemetry.update();
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
@@ -152,13 +173,21 @@ public class Aut_Encoder extends LinearOpMode {
         int newFrontRightTarget;
         int newBackLeftTarget;
         int newBackRightTarget;
+
         // Ensure that the opmode is still active
         if (opModeIsActive()) {
+            float hsvValues[] = {0F,0F,0F};// Stores hue and saturation values
+            final View relativeLayout = ((Activity) hardwareMap.appContext).findViewById(com.qualcomm.ftcrobotcontroller.R.id.RelativeLayout);// this may be unnecessary
+            //colorSensor.enableLed(false);
+            Color.RGBToHSV(ballSensor.red() * 8, ballSensor.green() * 8, ballSensor.blue() * 8, hsvValues);//turns values into simpler numbers
+            Color.RGBToHSV(whiteLine.red() * 8, whiteLine.green() * 8, whiteLine.blue() * 8, hsvValues);//turns values into simpler numbers
+            //Color.RGBToHSV(colorSensor.red(), colorSensor.green(), colorSensor.blue(), hsvValues);//stores values
+
             // Determine new target position, and pass to motor controller
-            newFrontLeftTarget = leftFront.getCurrentPosition() + (int)(frontLeftInches * COUNTS_PER_INCH);
-            newFrontRightTarget = rightFront.getCurrentPosition() + (int)(frontRightInches * COUNTS_PER_INCH);
-            newBackLeftTarget = leftFront.getCurrentPosition() + (int)(backLeftInches * COUNTS_PER_INCH);
-            newBackRightTarget = rightBack.getCurrentPosition() + (int)(backRightInches * COUNTS_PER_INCH);
+            newFrontLeftTarget = leftFront.getCurrentPosition() + (int) (frontLeftInches * COUNTS_PER_INCH);
+            newFrontRightTarget = rightFront.getCurrentPosition() + (int) (frontRightInches * COUNTS_PER_INCH);
+            newBackLeftTarget = leftFront.getCurrentPosition() + (int) (backLeftInches * COUNTS_PER_INCH);
+            newBackRightTarget = rightBack.getCurrentPosition() + (int) (backRightInches * COUNTS_PER_INCH);
             leftFront.setTargetPosition(newFrontLeftTarget);
             rightFront.setTargetPosition(newFrontRightTarget);
             leftBack.setTargetPosition(newBackLeftTarget);
@@ -184,8 +213,8 @@ public class Aut_Encoder extends LinearOpMode {
                     (runtime.seconds() < timeoutS) &&
                     (leftFront.isBusy() && rightFront.isBusy() && leftBack.isBusy() && rightBack.isBusy())) {
                 // Display it for the driver.
-                telemetry.addData("Path1",  "Running to %7d :%7d", newFrontLeftTarget,  newFrontRightTarget, newBackLeftTarget, newBackRightTarget);
-                telemetry.addData("Path2",  "Running at %7d :%7d",
+                telemetry.addData("Path1", "Running to %7d :%7d", newFrontLeftTarget, newFrontRightTarget, newBackLeftTarget, newBackRightTarget);
+                telemetry.addData("Path2", "Running at %7d :%7d",
                         leftFront.getCurrentPosition(),
                         rightFront.getCurrentPosition(),
                         leftBack.getCurrentPosition(),
@@ -203,6 +232,55 @@ public class Aut_Encoder extends LinearOpMode {
             leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             rightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             //  sleep(250);   // optional pause after each move
+        }
+    }
+
+
+    //Driving Methods
+    public void pushBall() {
+        do {
+            armServo.setPosition(1);
+            wait(1);
+//        sense();
+            if(whiteLine.alpha() < 200) {
+                armServo.setPosition(0);
+            }
+        }while(whiteLine.alpha() >= 200);
+
+        //assuming that the servo is on the right side of the robot
+        if(ballSensor.blue() >= 200 && ballSensor.red() < 200) { //assuming alliance is blue
+            driveForward(50,1);
+        }
+        else if(ballSensor.red() >= 200 && ballSensor.blue() < 200) {
+            driveBackwards(50,1);
+        }
+    }
+
+    //Extra Methods
+    public void driveForward(int x, double time){
+        encoderDrive(DRIVE_SPEED,  x,  x, x, x, time);  // S1: Forward 47 Inches with 5 Sec timeout
+    }
+    public void driveBackwards(int x, double time){
+        encoderDrive(DRIVE_SPEED,  -x,  -x, -x, -x, time);  // S1: Forward 47 Inches with 5 Sec timeout
+    }
+    public void strafeLeft(int x, double time){
+        encoderDrive(STRAFE_SPEED,  -x,  x, x, -x, time);  // S1: Forward 47 Inches with 5 Sec timeout
+    }
+    public void strafeRight(int x, double time){
+        encoderDrive(STRAFE_SPEED,  x,  -x, -x, x, time);  // S1: Forward 47 Inches with 5 Sec timeout
+    }
+    public void rotateRight(int x, double time){
+        encoderDrive(TURN_SPEED,  x,  -x, x, -x, time);  // S1: Forward 47 Inches with 5 Sec timeout
+    }
+    public void rotateLeft(int x, double time){
+        encoderDrive(TURN_SPEED,  -x,  x, -x, x, time);  // S1: Forward 47 Inches with 5 Sec timeout
+    }
+
+    public void wait(int time){
+        try{
+            Thread.sleep(time * 1000); //seconds
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 }

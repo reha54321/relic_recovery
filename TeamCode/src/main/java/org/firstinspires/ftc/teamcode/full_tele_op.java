@@ -36,6 +36,7 @@ public class full_tele_op extends OpMode {
     Servo leftArm;
 
     double changeFactor = .9;
+	double turnChangeFactor = .9;
 
     @Override
     public void init()

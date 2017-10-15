@@ -27,7 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.robotcontroller.external.samples;
+package org.firstinspires.ftc.teamcode;
 
 //import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 //import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -147,14 +147,11 @@ public class Aut_Encoder extends LinearOpMode {
         telemetry.update();
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
-        // Step through each leg of the path,
-        // Note: Reverse movement is obtained by setting a negative distance (not speed)
-        encoderDrive(DRIVE_SPEED,  48,  48, 48, 48, 5.0);  // S1: Forward 47 Inches with 5 Sec timeout
-        encoderDrive(TURN_SPEED,   12, -12, 12, -12, 4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
-        encoderDrive(DRIVE_SPEED, -24, -24, -24, -24, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout
-        //robot.leftClaw.setPosition(1.0);            // S4: Stop and close the claw.
-        //robot.rightClaw.setPosition(0.0);
-        //sleep(1000);     // pause for servos to move
+
+        // Start of Autonomous!!!!                   *****************************************************************************************************************
+        allianceSide("red");
+        pushBall();
+
         telemetry.addData("Path", "Complete");
         telemetry.update();
     }
@@ -235,9 +232,27 @@ public class Aut_Encoder extends LinearOpMode {
         }
     }
 
+    //Alliance Side Method!
+    public void allianceSide(String redBlueSide) {
+        if(redBlueSide.equals("red")) {
+            ballMovement = 50;
+            rotationForGlyph = 50;
+        }
+        else if(redBlueSide.equals("blue")) {
+            ballMovement = -50;
+            rotationForGlyph = -50;
+        }
+        else {
+            telemetry.addData("Error", "alliance side? " + redBlueSide);
+            telemetry.update();
+        }
+    }
 
     //Driving Methods
+    int ballMovement = 50;
     public void pushBall() {
+        whiteLine.enableLed(true);
+        ballSensor.enableLed(true);
         do {
             armServo.setPosition(1);
             wait(1);
@@ -248,12 +263,23 @@ public class Aut_Encoder extends LinearOpMode {
         }while(whiteLine.alpha() >= 200);
 
         //assuming that the servo is on the right side of the robot
-        if(ballSensor.blue() >= 200 && ballSensor.red() < 200) { //assuming alliance is blue
-            driveForward(50,1);
+//        sense();
+        if(ballSensor.blue()-50 > ballSensor.red()) { //assuming alliance is blue
+            driveForward(ballMovement,1);
         }
-        else if(ballSensor.red() >= 200 && ballSensor.blue() < 200) {
-            driveBackwards(50,1);
+        else if(ballSensor.red()-50 > ballSensor.blue()) {
+            driveForward(ballMovement,1);
         }
+        wait(1);
+        armServo.setPosition(0);
+        whiteLine.enableLed(false);
+        ballSensor.enableLed(false);
+    }
+
+    int rotationForGlyph = 50;
+    public void senseGlyphs() {
+        rotateRight(rotationForGlyph,.8);
+        //...
     }
 
     //Extra Methods

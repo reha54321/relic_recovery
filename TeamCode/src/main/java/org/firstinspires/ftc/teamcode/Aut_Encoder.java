@@ -120,6 +120,18 @@ public class Aut_Encoder extends LinearOpMode {
     
     Servo rightArm;
     Servo leftArm;
+    
+    //Vuforia
+
+    public static final String TAG = "Vuforia VuMark Sample";
+
+    OpenGLMatrix lastLocation = null;
+
+    /**
+     * {@link #vuforia} is the variable we will use to store our instance of the Vuforia
+     * localization engine.
+     */
+    VuforiaLocalizer vuforia;
 
     @Override
     public void runOpMode() {
@@ -164,9 +176,38 @@ public class Aut_Encoder extends LinearOpMode {
         telemetry.addData("Blue ", ballSensor.blue());
 
         telemetry.update();
-        // Wait for the game to start (driver presses PLAY)
-        waitForStart();
 
+        //Vuforia - starting the camera
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
+        //License Key, I already set it up I think
+        parameters.vuforiaLicenseKey = "AZD9V+f/////AAAAGZDj5Sa0JkeSohNtCSdf0T94R9bz9UlzQyuCIZuJ2d1ehAEqmbPYzprSq4hmd/9XUZYT088pUIzwl79q9h2ljFjUFD5p0RHKBx+ggMJ+qgCelvbeNf7Rd771vlduzibSBN6np49m6Z31Eyk0dYFZJbpdmw4P7mQ8LaeR6UOLgmiythqcCZga9VoEHPA2e8Z9/7At1SZVPiOBkVlEKz5AGhPhL5/A/R3sb30NSaiq5yquyJ+sOWvNQ5ovdVND6OrAQrc2DdQcCDyD8JQLOiVZYCPoNohKfuZ9N2jnZRSueEH4XV6i2DOqWxfJ5vmNf6jBcrOWLROO8KEoPa2Fvibxj7lPMp4JM/nMXK7TwEopU91v";
+        //Which camera we choose - I used back right now because I think the range is better, but front could work
+        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+        this.vuforia = ClassFactory.createVuforiaLocalizer(parameters);
+        //Define Pictographs as VuMarks which the Vuforia can track
+        VuforiaTrackables relicTrackables = this.vuforia.loadTrackablesFromAsset("RelicVuMark");
+        VuforiaTrackable relicTemplate = relicTrackables.get(0);
+        relicTemplate.setName("relicVuMarkTemplate");
+
+        // Wait for the game to start (driver presses PLAY)
+        waitForStar
+
+        while (opModeIsActive()) {
+        relicTrackables.activate();
+            RelicRecoveryVuMark vuMark = RelicRecoveryVuMark.from(relicTemplate);
+            if (vuMark != RelicRecoveryVuMark.UNKNOWN) {
+
+                telemetry.addData("VuMark", "%s visible", vuMark); //variable vuMark --> "center", "left", "right"
+
+            }
+            else {
+                telemetry.addData("VuMark", "not visible");
+            }
+
+            telemetry.update();
+        }
+        
         // Start of Autonomous!!!!                   *****************************************************************************************************************
         allianceSide("red");
         pushBall();

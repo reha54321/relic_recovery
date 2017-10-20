@@ -102,7 +102,9 @@ public class Aut_Encoder extends LinearOpMode {
 
     //Init Servos
     Servo armServo;
-
+    
+    Servo rightArm;
+    Servo leftArm;
 
     @Override
     public void runOpMode() {
@@ -129,6 +131,8 @@ public class Aut_Encoder extends LinearOpMode {
                 leftBack.getCurrentPosition(),
                 rightBack.getCurrentPosition()
         );
+        rightArm = hardwareMap.servo.get("right arm");
+        leftArm = hardwareMap.servo.get("left arm");
 
         whiteLine.enableLed(true); // mode is for close-range testing on objects that do not shine light
         telemetry.addData("LED", true ? "On" : "Off");
@@ -152,7 +156,7 @@ public class Aut_Encoder extends LinearOpMode {
         allianceSide("red");
         pushBall();
         senseGlyph();
-        getGlyph();
+        setGlyph();
 
         telemetry.addData("Path", "Complete");
         telemetry.update();
@@ -316,7 +320,7 @@ public class Aut_Encoder extends LinearOpMode {
     2 = middle
     3 = furthest
     */
-    public void getGlyph() {
+    public void setGlyph() {
         
         if(pictoRow == 1) {
         }

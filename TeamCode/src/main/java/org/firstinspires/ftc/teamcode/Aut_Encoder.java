@@ -239,15 +239,11 @@ public class Aut_Encoder extends LinearOpMode {
     int numMult = 1;
     public void allianceSide(String redBlueSide) {
         if(redBlueSide.equals("red")) {
-            numMult = -1;
-            ballMovement = 50;
-            rotationForGlyph = 50;
+            numMult = 1;
             isBlue = false;
         }
         else if(redBlueSide.equals("blue")) {
-            numMult = 1;
-            ballMovement = -50;
-            rotationForGlyph = -50;
+            numMult = -1;
             isBlue = true;
         }
         else {
@@ -257,7 +253,6 @@ public class Aut_Encoder extends LinearOpMode {
     }
 
     //Driving Methods
-    int ballMovement = 50;
     public void pushBall() {
         whiteLine.enableLed(true);
         ballSensor.enableLed(true);
@@ -308,15 +303,19 @@ public class Aut_Encoder extends LinearOpMode {
         driveForward(60, timeToPicto);
     }
 
-    int rotationForGlyph = 50;
     public void senseGlyph() {
-        rotateRight(rotationForGlyph,.8);
+        rotateRight(numMult * 50,.8);
         //...
         
 //         pictoRow = ...
     }
     
     int pictoRow = 0; //for knowing which row the pictograph shows for the glyph
+    /*
+    1 = closest
+    2 = middle
+    3 = furthest
+    */
     public void getGlyph() {
         
         if(pictoRow == 1) {

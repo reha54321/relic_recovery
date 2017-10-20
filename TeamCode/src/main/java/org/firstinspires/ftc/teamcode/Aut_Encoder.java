@@ -151,6 +151,8 @@ public class Aut_Encoder extends LinearOpMode {
         // Start of Autonomous!!!!                   *****************************************************************************************************************
         allianceSide("red");
         pushBall();
+        senseGlyph();
+        getGlyph();
 
         telemetry.addData("Path", "Complete");
         telemetry.update();
@@ -233,14 +235,20 @@ public class Aut_Encoder extends LinearOpMode {
     }
 
     //Alliance Side Method!
+    boolean isBlue = false;
+    int numMult = 1;
     public void allianceSide(String redBlueSide) {
         if(redBlueSide.equals("red")) {
+            numMult = -1;
             ballMovement = 50;
             rotationForGlyph = 50;
+            isBlue = false;
         }
         else if(redBlueSide.equals("blue")) {
+            numMult = 1;
             ballMovement = -50;
             rotationForGlyph = -50;
+            isBlue = true;
         }
         else {
             telemetry.addData("Error", "alliance side? " + redBlueSide);
@@ -264,22 +272,63 @@ public class Aut_Encoder extends LinearOpMode {
 
         //assuming that the servo is on the right side of the robot
 //        sense();
-        if(ballSensor.blue()-50 > ballSensor.red()) { //assuming alliance is blue
-            driveForward(ballMovement,1);
+        int timeToPicto = 0;
+        if(isBlue == true) { //senses backwards
+            if(ballSensor.blue()-50 > ballSensor.red()) { //if is blue
+                driveForward(50,1);
+                timeToPicto = .5;
+            }
+            else if(ballSensor.red()-50 > ballSensor.blue()) {
+                driveForward(-50,1);
+                timeToPicto = 1.5;
+            }
+            else {
+                telemetry.addData("pushBall", "Error in push ball method (blue)");
+                telemetry.update();
+            }
         }
-        else if(ballSensor.red()-50 > ballSensor.blue()) {
-            driveForward(ballMovement,1);
+        else {
+            if(ballSensor.red()-50 > ballSensor.blue()) { //if is red
+                driveForward(50,1);
+                timeToPicto = .5;
+            }
+            else if(ballSensor.blue()-50 > ballSensor.red()) {
+                driveForward(-50,1);
+                timeToPicto = 1.5;
+            }
+            else {
+                telemetry.addData("pushBall", "Error in push ball method (red)");
+                telemetry.update();
+            }
         }
-        wait(1);
         armServo.setPosition(0);
         whiteLine.enableLed(false);
         ballSensor.enableLed(false);
+        wait(1);
+        driveForward(60, timeToPicto);
     }
 
     int rotationForGlyph = 50;
-    public void senseGlyphs() {
+    public void senseGlyph() {
         rotateRight(rotationForGlyph,.8);
         //...
+        
+//         pictoRow = ...
+    }
+    
+    int pictoRow = 0; //for knowing which row the pictograph shows for the glyph
+    public void getGlyph() {
+        
+        if(pictoRow == 1) {
+        }
+        else if(pictoRow == 2) {
+        }
+        else if(pictoRow == 3) {
+        }
+        else {
+           telemetry.addData("getGlyph", "Error in getting glyph: " + pictoRow);
+           telemetry.update();
+        }
     }
 
     //Extra Methods
